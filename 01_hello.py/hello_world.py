@@ -8,3 +8,4 @@ FilePath: \Git_Practice_Code\hello_world.py
 '''
 print("hello world!")
 print("9999")
+print("000")
