@@ -1,7 +1,7 @@
 '''
 Author: your name
 Date: 2021-09-20 17:33:46
-LastEditTime: 2021-09-25 19:08:09
+LastEditTime: 2021-09-25 19:40:03
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
 FilePath: \Python_Advanced\Exercise\文件操作.py
@@ -11,95 +11,95 @@ mmap模块来实现对大文件的处理,
 mmap是一种虚拟内存映射文件的方法,即将一个文件或者其它对象映射到进程的地址空间,
 实现文件磁盘地址和进程虚拟地址空间中一段虚拟地址的一一对映关系。
 '''
-# import os,mmap
-# m = mmap.mmap(os.open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", os.O_RDWR), 0)
-# print(m.read(10))
-# print(m.readline())
-# print(m.readline())
-# print(m.size())
-# print(m.tell())
-# print(m.read(10))
-# print(m.tell())
-# print(m[101:108])
-# print(m[1:8])
-# print(m.find(b"SET", 0))
-# print(m.read_byte())
-# print(m.tell())
-# print(m.write_byte("zhoujy"))
-# m.close()
+import os,mmap
+m = mmap.mmap(os.open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", os.O_RDWR), 0)
+print(m.read(10))
+print(m.readline())
+print(m.readline())
+print(m.size())
+print(m.tell())
+print(m.read(10))
+print(m.tell())
+print(m[101:108])
+print(m[1:8])
+print(m.find(b"SET", 0))
+print(m.read_byte())
+print(m.tell())
+print(m.write_byte("zhoujy"))
+m.close()
 
 
 # 读取整个文件
-# import mmap
-# import contextlib
+import mmap
+import contextlib
 
-# f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", "r")
-# with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
-# #readline需要循环才能读取整个文件
-#     while True:
-#         line = m.readline().split()
-#         print(line)
-#         # 光标到最后位置(读完)，就退出 
-#         if m.tell() == m.size():
-#             break  
+f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", "r")
+with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
+#readline需要循环才能读取整个文件
+    while True:
+        line = m.readline().split()
+        print(line)
+        # 光标到最后位置(读完)，就退出 
+        if m.tell() == m.size():
+            break  
 
 
 # 读步读取指定字节数文件
-# import mmap
-# import contextlib
+import mmap
+import contextlib
 
-# with open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", "r") as f:
-#     with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
-#         print("读取10个字节的字符串: ", m.read(10))
-#         print('支持切片，对读取到的字符串进行切片操作:', m[2:10])
-#         print('读取之前光标后的10个字符串', m.read(10))
+with open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", "r") as f:
+    with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
+        print("读取10个字节的字符串: ", m.read(10))
+        print('支持切片，对读取到的字符串进行切片操作:', m[2:10])
+        print('读取之前光标后的10个字符串', m.read(10))
 
 
 # 从整个文件查找所有匹配的
-# import mmap
-# import contextlib
+import mmap
+import contextlib
 
-# word = 'ZHOUJY'
-# print('查找:', word)
+word = 'ZHOUJY'
+print('查找:', word)
 
-# f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r')
-# with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:    #也可以通过find(str,pos)来处理
-#     while True: 
-#         line = m.readline().strip()
-#         if line.find(word)>=0:
-#             print ("结果：")
-#             print (line)
-#         elif m.tell()==m.size():
-#             break
-#         else:
-#             pass
+f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r')
+with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:    #也可以通过find(str,pos)来处理
+    while True: 
+        line = m.readline().strip()
+        if line.find(word)>=0:
+            print ("结果：")
+            print (line)
+        elif m.tell()==m.size():
+            break
+        else:
+            pass
 
 # 从整个文件里查找，找到就退出(确认到底是否存在)
-# import mmap
-# import contextlib
+import mmap
+import contextlib
 
-# word = 'ZHOUJY'
-# print('查找:', word)
+word = 'ZHOUJY'
+print('查找:', word)
 
-# f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r')
-# with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:    #也可以通过find(str,pos)来处理
-#         #不需要循环，只要找到一个就可以了
-#     loc = m.find(word)
-#     if loc >= 0:
-#         print (loc)
-#         print (m[loc:loc+len(word)])
+f = open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r')
+with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:    #也可以通过find(str,pos)来处理
+        #不需要循环，只要找到一个就可以了
+    loc = m.find(word)
+    if loc >= 0:
+        print (loc)
+        print (m[loc:loc+len(word)])
 
 
-# 通过正则查找，（找出40开头的数字）
-# import mmap
-# import re
-# import contextlib
+#通过正则查找，（找出40开头的数字）
+import mmap
+import re
+import contextlib
 
-# pattern = re.compile(rb'(40\d*)')
+pattern = re.compile(rb'(40\d*)')
 
-# with open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r') as f:
-#     with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:
-#         print (pattern.findall(m))
+with open(r"D:\Xue_Xi\Git_Practice_Code\Python_Advanced\Exercise\file_mmap.txt", 'r') as f:
+    with contextlib.closing(mmap.mmap(f.fileno(), 0,access=mmap.ACCESS_READ)) as m:
+        print (pattern.findall(m))
 
 
 # 普通文件被映射到虚拟地址空间后，程序可以向访问普通内存一样对文件进行访问，在有些情况下可以提高IO效率。
@@ -182,3 +182,30 @@ if __name__ == "__main__":
 
 #https://www.cnblogs.com/zhoujinyi/p/6062907.html
 #https://blog.csdn.net/chenwr2018/article/details/90639533
+
+
+def get_lines():
+    l = []
+    with open('file.txt','rb') as f:
+        data = f.readlines(60000)
+        l.append(data)
+        yield l
+
+if __name__ == '__main__': 
+    for e in get_lines(): 
+        process(e) # 处理每一行数
+
+
+from mmap import mmap
+def get_lines(fp):
+    with open(fp,"r+") as f:
+        m = mmap(f.fileno(), 0)
+        tmp = 0
+        for i, char in enumerate(m):
+            if char==b"\n":
+                yield m[tmp:i+1].decode()
+                tmp = i+1
+                
+if __name__=="__main__":
+    for i in get_lines("fp_some_huge_file"):
+        print(i)
