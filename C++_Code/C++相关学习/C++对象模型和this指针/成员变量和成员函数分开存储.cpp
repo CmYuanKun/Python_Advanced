@@ -25,7 +25,7 @@ public:
     }
 
     //静态成员函数也不占对象空间
-    static void sfunc(){
+    static void func(){
 
     }
 
