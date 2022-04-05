@@ -1,146 +1,66 @@
-#define WIN32_LEAN_AND_MEAN
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
+#include "EasyTcpClient.hpp"
+#include <thread>
+using namespace std;
 
-#include <WinSock2.h>
-#include <Windows.h>
-#include <stdio.h>
+bool g_bRun = true;
 
-//#pragma comment(lib, "ws2_32.lib")
-
-enum CMD {
-	CMD_LOGIN,
-	CMD_LOGIN_RESULT,
-	CMD_LOGOUT,
-	CMD_LOGOUT_RESULT,
-	CMD_ERROR
-
-};
-
-struct DataHeader
+void cmdThread()
 {
-	short dataLength;
-	short cmd;
-};
-
-//DataPackage
-struct Login : public DataHeader
-{
-	Login()
+	while (true)
 	{
-		dataLength = sizeof(Login);
-		cmd = CMD_LOGIN;
+		char cmdBuf[256] = {};
+		scanf("%s", cmdBuf);
+		
+		if (0 == strcmp(cmdBuf, "exit"))
+		{
+			g_bRun = false;
+			printf("退出cmdThread线程\n");
+		}
+		else {
+			printf("不支持的命令。 \n");
+		}
 	}
-	char userName[32];
-	char PassWord[32];
-};
-
-struct Logout : public DataHeader
-{
-	Logout()
-	{
-		dataLength = sizeof(Logout);
-		cmd = CMD_LOGIN;
-	}
-	char userName[32];
-};
-
-struct LoginResult : public DataHeader
-{
-	LoginResult()
-	{
-		dataLength = sizeof(LoginResult);
-		cmd = CMD_LOGIN_RESULT;
-		result = 0;
-	}
-	int result;
-};
-
-struct LogoutResult : public DataHeader
-{
-	LogoutResult()
-	{
-		dataLength = sizeof(LogoutResult);
-		cmd = CMD_LOGOUT_RESULT;
-		result = 0;
-	}
-	int result;
-};
-
+}
 
 
 int main()
 {
-	WORD ver = MAKEWORD(2, 2);
-	WSADATA dat;
-	WSAStartup(ver, &dat);
+	const int cCount = FD_SETSIZE - 1;
+	//const int cCount = 1000;
+	EasyTcpClient* client[cCount];
 
-	//用Socket API建立简易TCP客户端
-	//1. 建立一个Socket
-	SOCKET _sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (INVALID_SOCKET == _sock)
+	for (int n = 0; n < cCount; n++)
 	{
-		printf("错误，建立Socket失败...\n");
-	}
-	else {
-		printf("建立Socket成功...\n");
-	}
-	//2. 连接服务器connect
-	sockaddr_in _sin = {};
-	_sin.sin_family = AF_INET;
-	_sin.sin_port = htons(4567);
-	_sin.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-
-	int ret = connect(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
-	if (SOCKET_ERROR == ret)
-	{
-		printf("错误，连接服务器失败...\n");
-	}
-	else {
-		printf("连接服务器成功...\n");
+		client[n] = new EasyTcpClient();
 	}
 
-	while (true)
+	for (int n = 0; n < cCount; n++)
 	{
-		//3. 输入请求命令
-		char cmdBuf[128] = {};
-		scanf("%s", cmdBuf);
-		if (0 == strcmp(cmdBuf, "exit"))
+		client[n]->Connect("127.0.0.1", 4567);
+	}
+
+	//启动UI线程
+	thread t1(cmdThread);
+	t1.detach();
+
+	Login login;
+	strcpy(login.userName, "lyd");
+	strcpy(login.passWord, "lydmm");
+
+	while (g_bRun)
+	{
+		for (int n = 0; n < cCount; n++)
 		{
-			printf("收到exit命令, 任务结束。\n");
-			break;
-
-		}
-		else if (0 == strcmp(cmdBuf, "login")) {
-		//5. 向服务器发送请求命令
-			Login login;
-			strcpy(login.userName, "lyd");
-			strcpy(login.PassWord, "lydmima");
-			send(_sock, (const char*)&login, sizeof(login), 0);
-		//接受服务器返回的数据
-			LoginResult loginRet = {};
-			recv(_sock, (char*)&loginRet, sizeof(loginRet), 0);
-			printf("LoginResult: %d \n", loginRet.result);
-		}
-		else if (0 == strcmp(cmdBuf, "logout")) {
-			//5. 向服务器发送请求命令
-			Logout logout;
-			strcpy(logout.userName, "lyd");
-			send(_sock, (const char*)&logout, sizeof(logout), 0);
-			//接受服务器返回的数据
-			LogoutResult logoutRet = {};
-			recv(_sock, (char*)&logoutRet, sizeof(logoutRet), 0);
-			printf("LogoutResult: %d \n", logoutRet.result);
-		}
-		else {
-			printf("不支持的命令,请重新输入。\n");
+			client[n]->SendData(&login);
+			client[n]->OnRun();
 		}
 	}
-	// 7 关闭套节字closesocket
-	closesocket(_sock);
-	//清除Windows socket环境
-	WSACleanup();
-	printf("已退出。");
+
+	for (int n = 0; n < cCount; n++)
+	{
+		client[n]->Close();
+	}
+	printf("已退出。\n");
 	getchar();
 	return 0;
 }
